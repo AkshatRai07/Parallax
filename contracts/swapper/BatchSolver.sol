@@ -43,12 +43,13 @@ contract BatchSolver {
         Multiprocess mp = new Multiprocess(2);
         for (uint i = 0; i < metadata.length; i++) {
             mp.addJob(
-                10000000000000,
+                100_000_000,
                 0,
                 address(this),
                 abi.encodeWithSignature("solveBatch(PairMetadata,IntentData)", metadata[i], intentdata[i])
             );
         }
+        mp.run();
     }
 
     function solveBatch(PairMetadata memory metadata, IntentData memory intents) private {

@@ -2,21 +2,25 @@
 pragma solidity ^0.8.20;
 
 import "./IntentStructConcurrentArray.sol";
-import "./IBatchSolver.sol";
+import "../swapper/IBatchSolver.sol";
 
 contract Dispatcher {
-    
+
     IntentStruct public intentContainer;
 
     IBatchSolver public immutable solver;
+
+    address public immutable keeper;
 
     mapping(bytes32 => IBatchSolver.IntentData) private tempIntentData;
     mapping(bytes32 => IBatchSolver.PairMetadata) private tempMetadata;
     bytes32[] private tempPairHashes;
 
-    constructor(address _solver) {
+    constructor(address _solver, address _keeper) {
         require(_solver != address(0), "Solver address cannot be zero");
+        require(_keeper != address(0), "Keeper address cannot be zero");
         solver = IBatchSolver(_solver);
+        keeper = _keeper;
         intentContainer = new IntentStruct();
     }
 
@@ -29,13 +33,11 @@ contract Dispatcher {
         require(elem.amount > 0, "Amount must be greater than zero");
 
         intentContainer.push(elem);
-
-        if (block.number % 3 == 0) {
-            dispatch();
-        }
     }
 
-    function dispatch() private {
+    function dispatch() external {
+        require(msg.sender == keeper, "Sender not keeper");
+
         uint256 len = intentContainer.fullLength();
 
         if (len == 0) {
