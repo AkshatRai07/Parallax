@@ -3,17 +3,23 @@
 // Run benchmark with this:
 // npx arcology.net-tx-sender http://192.168.1.103:8545 benchmark/dispatcher/txs/like/addIntent/
 
-const hre = require("hardhat");
-const frontendUtil = require("@arcologynetwork/frontend-util/utils/util");
-const nets = require("../network.json");
-const ProgressBar = require("progress");
+import hre, { network } from "hardhat";
+import frontendUtil from "@arcologynetwork/frontend-util/utils/util";
+import nets from "../network.json";
+import ProgressBar from "progress";
 
 async function main() {
+
+    const { ethers } = await network.connect({
+        network: "TestnetInfo",
+        chainType: "l1",
+    });
+
     const accounts = await ethers.getSigners();
     const provider = new ethers.providers.JsonRpcProvider(
         nets[hre.network.name].url
     );
-  
+
     // Use the first account (default deployer) as the keeper
     const pkCreator = nets[hre.network.name].accounts[0];
     const signerCreator = new ethers.Wallet(pkCreator, provider);
