@@ -61,14 +61,14 @@ contract Dispatcher {
                 abi.encodePacked(token0, token1, fullIntent.router)
             );
 
-            IBatchSolver.Intent memory solverIntent = IBatchSolver.Intent(
-                fullIntent.user,
-                fullIntent.amount,
-                fullIntent.deadline,
-                fullIntent.v,
-                fullIntent.r,
-                fullIntent.s
-            );
+            IBatchSolver.Intent memory solverIntent = IBatchSolver.Intent({
+                user: fullIntent.user,
+                amountIn: fullIntent.amount,
+                deadline: fullIntent.deadline,
+                v: fullIntent.v,
+                r: fullIntent.r,
+                s: fullIntent.s
+            });
 
             if (tempMetadata[pairHash].router == address(0)) {
                 tempMetadata[pairHash] = IBatchSolver.PairMetadata(
