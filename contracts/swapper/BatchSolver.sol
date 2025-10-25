@@ -4,8 +4,12 @@ pragma solidity ^0.8.20;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@arcologynetwork/concurrentlib/lib/multiprocess/Multiprocess.sol";
+import "@arcologynetwork/concurrentlib/lib/commutative/U256Cum.sol";
 
 contract BatchSolver {
+
+    U256Cumulative public totalSwapsProcessed = new U256Cumulative(0, type(uint256).max);
+    U256Cumulative public totalVolumeInTokens = new U256Cumulative(0, type(uint256).max);
 
     struct Intent {
         address user;
@@ -52,7 +56,7 @@ contract BatchSolver {
         mp.run();
     }
 
-    function solveBatch(PairMetadata memory metadata, IntentData memory intents) private {
+    function solveBatch(PairMetadata memory metadata, IntentData memory intents) public {
         require(metadata.token0 < metadata.token1, "token0 < token1 required");
 
         uint256 totalAmount0In = _pullTokens(
@@ -113,6 +117,9 @@ contract BatchSolver {
             totalToken0For1to0Users,
             totalAmount1In
         );
+    
+        totalSwapsProcessed.add(intents.intents0to1.length + intents.intents1to0.length);
+        totalVolumeInTokens.add(netAmountToSwap);
 
         emit BatchSettled(
             metadata.token0,

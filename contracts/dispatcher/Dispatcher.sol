@@ -7,9 +7,8 @@ import "../swapper/IBatchSolver.sol";
 contract Dispatcher {
 
     IntentStruct public intentContainer;
-
+    IntentStruct public processingContainer;
     IBatchSolver public immutable solver;
-
     address public immutable keeper;
 
     mapping(bytes32 => IBatchSolver.IntentData) private tempIntentData;
@@ -22,6 +21,7 @@ contract Dispatcher {
         solver = IBatchSolver(_solver);
         keeper = _keeper;
         intentContainer = new IntentStruct();
+        processingContainer = new IntentStruct();
     }
 
     function addIntent(IntentStruct.Intent memory elem) external {
@@ -38,14 +38,19 @@ contract Dispatcher {
     function dispatch() external {
         require(msg.sender == keeper, "Sender not keeper");
 
-        uint256 len = intentContainer.fullLength();
+        IntentStruct containerToProcess = intentContainer;
+        intentContainer = processingContainer;
+
+        processingContainer = new IntentStruct();
+
+        uint256 len = containerToProcess.fullLength();
 
         if (len == 0) {
             return;
         }
 
         for (uint i = 0; i < len; i++) {
-            IntentStruct.Intent memory fullIntent = intentContainer.get(i);
+            IntentStruct.Intent memory fullIntent = containerToProcess.get(i);
 
             (address token0, address token1) = (fullIntent.token0 < fullIntent.token1)
                 ? (fullIntent.token0, fullIntent.token1)
@@ -78,7 +83,7 @@ contract Dispatcher {
 
         uint256 numBatches = tempPairHashes.length;
         if (numBatches == 0) {
-            _cleanup(len);
+            _cleanup();
             return;
         }
 
@@ -97,14 +102,10 @@ contract Dispatcher {
 
         solver.solveMultipleBatch(metadata, intentdata);
 
-        _cleanup(len);
+        _cleanup();
     }
 
-    function _cleanup(uint256 len) private {
-        for (uint i = 0; i < len; i++) {
-            intentContainer.delLast();
-        }
-
+    function _cleanup() private {
         for (uint i = 0; i < tempPairHashes.length; i++) {
             bytes32 hash = tempPairHashes[i];
             delete tempIntentData[hash];
