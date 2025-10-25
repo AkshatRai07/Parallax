@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+// Some tests in this file are commented out and a comment is added
+// above them because they change Arcology's special types (like
+// parallelizable arrays), and hence cannot be ran in an EVM or
+// NodeJS/Mocha runtime, they shall be tested by arcology's frontend utils
+
 import { Test, console } from "forge-std/Test.sol";
 import { Dispatcher } from "../contracts/dispatcher/Dispatcher.sol";
 import { IntentStruct } from "../contracts/dispatcher/IntentStructConcurrentArray.sol";
@@ -113,5 +118,69 @@ contract DispatcherTest is Test {
     function test_Revert_Constructor_ZeroKeeper() public {
         vm.expectRevert("Keeper address cannot be zero");
         new Dispatcher(address(mockSolver), address(0));
+    }
+   
+    // --- addIntent Tests ---
+
+    // *** Cannot run in EVM ***
+    function test_AddIntent_Success() public {
+        // IntentStruct.Intent memory intent = _createValidIntent();
+        // assertEq(intentContainer.fullLength(), 0);
+        // dispatcher.addIntent(intent);
+        // assertEq(intentContainer.fullLength(), 1);
+
+        // IntentStruct.Intent memory storedIntent = intentContainer.get(0);
+        // assertEq(storedIntent.user, intent.user);
+        // assertEq(storedIntent.token0, intent.token0);
+        // assertEq(storedIntent.amount, intent.amount);
+    }
+
+    function test_Revert_AddIntent_ZeroUser() public {
+        IntentStruct.Intent memory intent = _createValidIntent();
+        intent.user = address(0);
+        vm.expectRevert("User cannot be zero");
+        dispatcher.addIntent(intent);
+    }
+
+    function test_Revert_AddIntent_ZeroToken0() public {
+        IntentStruct.Intent memory intent = _createValidIntent();
+        intent.token0 = address(0);
+        vm.expectRevert("Token0 cannot be zero");
+        dispatcher.addIntent(intent);
+    }
+
+    function test_Revert_AddIntent_ZeroToken1() public {
+        IntentStruct.Intent memory intent = _createValidIntent();
+        intent.token1 = address(0);
+        vm.expectRevert("Token1 cannot be zero");
+        dispatcher.addIntent(intent);
+    }
+
+    function test_Revert_AddIntent_SameTokens() public {
+        IntentStruct.Intent memory intent = _createValidIntent();
+        intent.token1 = intent.token0;
+        vm.expectRevert("Tokens must be different");
+        dispatcher.addIntent(intent);
+    }
+
+    function test_Revert_AddIntent_ZeroRouter() public {
+        IntentStruct.Intent memory intent = _createValidIntent();
+        intent.router = address(0);
+        vm.expectRevert("Router cannot be zero");
+        dispatcher.addIntent(intent);
+    }
+
+    function test_Revert_AddIntent_ZeroAmount() public {
+        IntentStruct.Intent memory intent = _createValidIntent();
+        intent.amount = 0;
+        vm.expectRevert("Amount must be greater than zero");
+        dispatcher.addIntent(intent);
+    }
+
+    function test_Revert_AddIntent_ExpiredDeadline() public {
+        IntentStruct.Intent memory intent = _createValidIntent();
+        intent.deadline = block.timestamp - 1;
+        vm.expectRevert("Permit deadline expired");
+        dispatcher.addIntent(intent);
     }
 }
