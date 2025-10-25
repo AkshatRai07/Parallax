@@ -12,6 +12,10 @@ contract IntentStruct is Base {
         address token0;
         address token1;
         address router;
+        uint256 deadline;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
     }
 
     constructor() Base(Const.BYTES, false) {}

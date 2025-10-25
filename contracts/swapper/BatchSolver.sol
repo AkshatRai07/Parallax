@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@arcologynetwork/concurrentlib/lib/multiprocess/Multiprocess.sol";
 import "@arcologynetwork/concurrentlib/lib/commutative/U256Cum.sol";
@@ -15,6 +16,10 @@ contract BatchSolver {
     struct Intent {
         address user;
         uint256 amountIn;
+        uint256 deadline;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
     }
 
     struct PairMetadata {
@@ -209,6 +214,16 @@ contract BatchSolver {
         for (uint i = 0; i < intents.length; i++) {
             uint256 amount = intents[i].amountIn;
             if (amount > 0) {
+                IERC20Permit(token).permit(
+                    intents[i].user,
+                    address(this),
+                    amount,
+                    intents[i].deadline,
+                    intents[i].v,
+                    intents[i].r,
+                    intents[i].s
+                );
+
                 totalAmount += amount;
                 IERC20(token).transferFrom(intents[i].user, address(this), amount);
             }

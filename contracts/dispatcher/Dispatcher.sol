@@ -31,6 +31,7 @@ contract Dispatcher {
         require(elem.token0 != elem.token1, "Tokens must be different");
         require(elem.router != address(0), "Router cannot be zero");
         require(elem.amount > 0, "Amount must be greater than zero");
+        require(elem.deadline >= block.timestamp, "Permit deadline expired");
 
         intentContainer.push(elem);
     }
@@ -62,7 +63,11 @@ contract Dispatcher {
 
             IBatchSolver.Intent memory solverIntent = IBatchSolver.Intent(
                 fullIntent.user,
-                fullIntent.amount
+                fullIntent.amount,
+                fullIntent.deadline,
+                fullIntent.v,
+                fullIntent.r,
+                fullIntent.s
             );
 
             if (tempMetadata[pairHash].router == address(0)) {

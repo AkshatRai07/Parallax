@@ -6,6 +6,10 @@ interface IBatchSolver {
     struct Intent {
         address user;
         uint256 amountIn;
+        uint256 deadline;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
     }
 
     struct PairMetadata {
