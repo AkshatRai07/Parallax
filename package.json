@@ -18,8 +18,12 @@
   },
   "dependencies": {
     "@arcologynetwork/concurrentlib": "^2.2.0",
+    "@arcologynetwork/frontend-tools": "^1.0.11",
+    "@arcologynetwork/frontend-util": "^1.0.10",
     "@openzeppelin/contracts": "^5.4.0",
     "@uniswap/v2-core": "^1.0.1",
-    "@uniswap/v2-periphery": "^1.1.0-beta.0"
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "progress": "^2.0.3"
   }
 }
+    
