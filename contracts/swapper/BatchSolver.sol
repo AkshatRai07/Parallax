@@ -67,7 +67,7 @@ contract BatchSolver {
         }
     }
 
-    function solveMultipleBatch(PairMetadata[] memory metadata, IntentData[] memory intentdata) public {
+    function solveMultipleBatch(PairMetadata[] memory metadata, IntentData[] memory intentdata) external {
         require(metadata.length == intentdata.length, "Unequal data given");
         Multiprocess mp = new Multiprocess(2);
         for (uint i = 0; i < metadata.length; i++) {
@@ -81,8 +81,7 @@ contract BatchSolver {
         mp.run();
     }
 
-    function solveBatch(PairMetadata memory metadata, IntentData memory intents) public {
-        require(msg.sender == address(this), "Only callable via Multiprocess");
+    function solveBatch(PairMetadata memory metadata, IntentData memory intents) private {
         require(metadata.token0 < metadata.token1, "token0 < token1 required");
 
         uint256 totalAmount0In = _pullTokens(

@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 // Some tests in this file are commented out and a comment is added
 // above them because they change Arcology's special types (like
-// parallelizable arrays), and hence cannot be ran in an EVM or
-// NodeJS/Mocha runtime, they shall be tested by arcology's frontend utils
+// parallelizable arrays), and hence cannot be ran in an EVM 
+// runtime, they shall be tested by arcology's frontend utils
 
 import { Test, console } from "forge-std/Test.sol";
 import { Dispatcher } from "../contracts/dispatcher/Dispatcher.sol";
