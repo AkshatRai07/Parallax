@@ -38,4 +38,7 @@ interface IBatchSolver {
         PairMetadata[] memory metadata,
         IntentData[] memory intentdata
     ) external;
+
+    function withdrawFees(address token) external;
+
 }

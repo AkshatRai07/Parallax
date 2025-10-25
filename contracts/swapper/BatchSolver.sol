@@ -10,6 +10,7 @@ contract BatchSolver {
 
     U256Cumulative public totalSwapsProcessed = new U256Cumulative(0, type(uint256).max);
     U256Cumulative public totalVolumeInTokens = new U256Cumulative(0, type(uint256).max);
+    address public keeper;
 
     struct Intent {
         address user;
@@ -42,6 +43,25 @@ contract BatchSolver {
         uint256 amountOut
     );
 
+    event FeesWithdrawn(
+        address indexed tokenAddress,
+        uint256 indexed amount
+    );
+
+    constructor(address _keeper) {
+        require(_keeper != address(0), "Keeper address cannot be zero");
+        keeper = _keeper;
+    }
+
+    function withdrawFees(address token) external {
+        require(msg.sender == keeper, "Only keeper");
+        uint256 balance = IERC20(token).balanceOf(address(this));
+        if (balance > 0) {
+            IERC20(token).transfer(keeper, balance);
+            emit FeesWithdrawn(token, balance);
+        }
+    }
+
     function solveMultipleBatch(PairMetadata[] memory metadata, IntentData[] memory intentdata) public {
         require(metadata.length == intentdata.length, "Unequal data given");
         Multiprocess mp = new Multiprocess(2);
@@ -57,6 +77,7 @@ contract BatchSolver {
     }
 
     function solveBatch(PairMetadata memory metadata, IntentData memory intents) public {
+        require(msg.sender == address(this), "Only callable via Multiprocess");
         require(metadata.token0 < metadata.token1, "token0 < token1 required");
 
         uint256 totalAmount0In = _pullTokens(
@@ -117,7 +138,7 @@ contract BatchSolver {
             totalToken0For1to0Users,
             totalAmount1In
         );
-    
+
         totalSwapsProcessed.add(intents.intents0to1.length + intents.intents1to0.length);
         totalVolumeInTokens.add(netAmountToSwap);
 
@@ -200,14 +221,29 @@ contract BatchSolver {
         uint256 totalAmountOut,
         uint256 totalAmountIn
     ) private {
-        if (totalAmountIn == 0) return; 
+        if (totalAmountIn == 0) return;
+
+        uint256 feeAmount = (totalAmountOut * 5) / 10000; // 0.05% fee rate
+
+        uint256 distributableAmount = totalAmountOut - feeAmount;
+
+        uint256 distributedSoFar = 0;
 
         for (uint i = 0; i < intents.length; i++) {
-            uint256 amountOut = (intents[i].amountIn * totalAmountOut) / totalAmountIn;
-
-            if (amountOut > 0) {
-                IERC20(tokenOut).transfer(intents[i].user, amountOut);
-                emit UserSettled(intents[i].user, tokenOut, amountOut);
+            if (i == intents.length - 1) {
+                uint256 amountOut = distributableAmount - distributedSoFar; // Give remainders and all to last user
+                if (amountOut > 0) {
+                    IERC20(tokenOut).transfer(intents[i].user, amountOut);
+                    emit UserSettled(intents[i].user, tokenOut, amountOut);
+                }
+            } else {
+                uint256 amountOut = (intents[i].amountIn * distributableAmount) /
+                    totalAmountIn;
+                if (amountOut > 0) {
+                    distributedSoFar += amountOut;
+                    IERC20(tokenOut).transfer(intents[i].user, amountOut);
+                    emit UserSettled(intents[i].user, tokenOut, amountOut);
+                }
             }
         }
     }
