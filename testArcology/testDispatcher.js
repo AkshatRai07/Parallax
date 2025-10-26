@@ -36,12 +36,12 @@ async function deployContracts() {
     // Deploy MockBatchSolver
     const MockSolverFactory = await ethers.getContractFactory("MockBatchSolver");
     const mockSolver = await MockSolverFactory.deploy();
-    await mockSolver.deployed(); // Using v5 .deployed()
+    await mockSolver.waitForDeployment(); // Using v5 mockSolver.waitForDeployment()
 
     // Deploy Dispatcher
     const DispatcherFactory = await ethers.getContractFactory("Dispatcher");
     const dispatcher = await DispatcherFactory.deploy(mockSolver.address, keeper.address); // Using v5 .address
-    await dispatcher.deployed();
+    await dispatchermockSolver.waitForDeployment();
 
     // Get IntentStruct factory
     const IntentStructFactory = await ethers.getContractFactory("IntentStruct");

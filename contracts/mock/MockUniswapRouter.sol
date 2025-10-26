@@ -6,7 +6,7 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 // This contract is marked 'abstract' because it does not implement
 // all functions from the IUniswapV2Router02 interface (e.g., liquidity functions).
-abstract contract MockUniswapRouter is IUniswapV2Router02 {
+contract MockUniswapRouter is IUniswapV2Router02 {
     address public immutable wethAddress;
 
     // rate[tokenIn][tokenOut] = amountOut for 1e18 tokenIn
@@ -26,6 +26,10 @@ abstract contract MockUniswapRouter is IUniswapV2Router02 {
     }
 
     // --- Implemented Functions ---
+
+    function factory() external pure virtual override returns (address) {
+        return address(0); // Mock address
+    }
 
     function WETH() external pure virtual override returns (address) {
         return 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;

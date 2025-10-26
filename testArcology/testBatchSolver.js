@@ -47,7 +47,7 @@ async function createPermitSignature(wallet, token, spender, amount, deadline) {
     };
 
     const signature = await wallet._signTypedData(domain, types, value);
-    return ethers.utils.splitSignature(signature);
+    return ethers.Signature.from(signature);
 }
 
 /**
@@ -87,9 +87,9 @@ async function deployContracts() {
     const MockERC20Factory = await ethers.getContractFactory("MockERC20Permit");
     // Sort addresses for deterministic token0/token1
     const addrs = [
-        ethers.utils.getAddress(ethers.utils.id("token0").slice(0, 42)),
-        ethers.utils.getAddress(ethers.utils.id("token1").slice(0, 42)),
-        ethers.utils.getAddress(ethers.utils.id("token2").slice(0, 42))
+        ethers.getAddress(ethers.id("token0").slice(0, 42)),
+        ethers.getAddress(ethers.id("token1").slice(0, 42)),
+        ethers.getAddress(ethers.id("token2").slice(0, 42))
     ].sort();
 
     const token0 = MockERC20Factory.attach(addrs[0]);
@@ -97,22 +97,22 @@ async function deployContracts() {
     const token2 = MockERC20Factory.attach(addrs[2]);
 
     // Deploy tokens (or attach if they are pre-deployed in the test env)
-    try { await token0.deployed(); } catch (e) { /* ignore */ }
-    try { await token1.deployed(); } catch (e) { /* ignore */ }
-    try { await token2.deployed(); } catch (e) { /* ignore */ }
+    try { await token0.waitForDeployment(); } catch (e) { /* ignore */ }
+    try { await token1token0.waitForDeployment(); } catch (e) { /* ignore */ }
+    try { await token2token0.waitForDeployment(); } catch (e) { /* ignore */ }
 
     // Deploy Mock Router
     const MockRouterFactory = await ethers.getContractFactory("MockUniswapRouter");
     const router = await MockRouterFactory.deploy(); 
-    await router.deployed();
+    await routertoken0.waitForDeployment();
 
     // Deploy BatchSolver
     const BatchSolverFactory = await ethers.getContractFactory("BatchSolver");
     const batchSolver = await BatchSolverFactory.deploy(keeper.address);
-    await batchSolver.deployed();
+    await batchSolvertoken0.waitForDeployment();
 
     // Mint tokens to users (1 million of each)
-    const mintAmount = ethers.utils.parseEther("1000000");
+    const mintAmount = ethers.parseEther("1000000");
     await token0.connect(other).mint(user1.address, mintAmount);
     await token1.connect(other).mint(user1.address, mintAmount);
     await token2.connect(other).mint(user1.address, mintAmount);
@@ -121,10 +121,10 @@ async function deployContracts() {
     await token2.connect(other).mint(user2.address, mintAmount);
 
     // Set 1:1 rates on the router
-    await router.setRate(token0.address, token1.address, ethers.utils.parseEther("1"));
-    await router.setRate(token1.address, token0.address, ethers.utils.parseEther("1.0"));
-    await router.setRate(token1.address, token2.address, ethers.utils.parseEther("1.0"));
-    await router.setRate(token2.address, token1.address, ethers.utils.parseEther("1.0"));
+    await router.setRate(token0.address, token1.address, ethers.parseEther("1"));
+    await router.setRate(token1.address, token0.address, ethers.parseEther("1.0"));
+    await router.setRate(token1.address, token2.address, ethers.parseEther("1.0"));
+    await router.setRate(token2.address, token1.address, ethers.parseEther("1.0"));
 
     console.log("   Contracts deployed.");
     return { batchSolver, router, token0, token1, token2, keeper, user1, user2, other };
@@ -146,7 +146,7 @@ async function test_WithdrawFees_Success() {
 
     console.log("Running: test_WithdrawFees_Success...");
     const { batchSolver, token0, keeper, other } = await deployContracts();
-    const feeAmount = ethers.utils.parseEther("100");
+    const feeAmount = ethers.parseEther("100");
     
     await token0.connect(other).mint(batchSolver.address, feeAmount);
     expect(await token0.balanceOf(batchSolver.address)).to.equal(feeAmount);
@@ -195,7 +195,7 @@ async function test_Scenario1_PerfectCoW() {
 
     const block = await ethers.provider.getBlock("latest");
     const deadline = block.timestamp + 3600;
-    const amount = ethers.utils.parseEther("100");
+    const amount = ethers.parseEther("100");
 
     const intent1 = await createIntent(user1, token0, batchSolver.address, amount, deadline);
     const intent2 = await createIntent(user2, token1, batchSolver.address, amount, deadline);
@@ -253,8 +253,8 @@ async function test_Scenario2_NetSwap0to1() {
 
     const block = await ethers.provider.getBlock("latest");
     const deadline = block.timestamp + 3600;
-    const amount100 = ethers.utils.parseEther("100");
-    const amount50 = ethers.utils.parseEther("50");
+    const amount100 = ethers.parseEther("100");
+    const amount50 = ethers.parseEther("50");
 
     const intent1 = await createIntent(user1, token0, batchSolver.address, amount100, deadline);
     const intent2 = await createIntent(user2, token1, batchSolver.address, amount50, deadline);
@@ -311,8 +311,8 @@ async function test_Scenario3_NetSwap1to0() {
 
     const block = await ethers.provider.getBlock("latest");
     const deadline = block.timestamp + 3600;
-    const amount50 = ethers.utils.parseEther("50");
-    const amount100 = ethers.utils.parseEther("100");
+    const amount50 = ethers.parseEther("50");
+    const amount100 = ethers.parseEther("100");
 
     const intent1 = await createIntent(user1, token0, batchSolver.address, amount50, deadline);
     const intent2 = await createIntent(user2, token1, batchSolver.address, amount100, deadline);
@@ -369,8 +369,8 @@ async function test_Scenario4_TwoBatches() {
 
     const block = await ethers.provider.getBlock("latest");
     const deadline = block.timestamp + 3600;
-    const amount100 = ethers.utils.parseEther("100");
-    const amount50 = ethers.utils.parseEther("50");
+    const amount100 = ethers.parseEther("100");
+    const amount50 = ethers.parseEther("50");
 
     // Batch 1
     const intent1_1 = await createIntent(user1, token0, batchSolver.address, amount100, deadline);
