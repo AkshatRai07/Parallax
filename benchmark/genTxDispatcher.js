@@ -16,7 +16,7 @@ async function main() {
     });
 
     const accounts = await ethers.getSigners();
-    const provider = new ethers.providers.JsonRpcProvider(
+    const provider = new ethers.JsonRpcProvider(
         nets.TestnetInfo.url
     );
 
