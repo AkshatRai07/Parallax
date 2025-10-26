@@ -10,7 +10,7 @@ import { Test, console } from "forge-std/Test.sol";
 import { Dispatcher } from "../contracts/dispatcher/Dispatcher.sol";
 import { IntentStruct } from "../contracts/dispatcher/IntentStructConcurrentArray.sol";
 import { IBatchSolver } from "../contracts/swapper/IBatchSolver.sol";
-import { MockBatchSolver } from "../contracts/swapper/MockBatchSolver.sol";
+import { MockBatchSolver } from "../contracts/mock/MockBatchSolver.sol";
 
 contract DispatcherTest is Test {
     Dispatcher public dispatcher;

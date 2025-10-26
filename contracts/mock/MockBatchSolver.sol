@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./IBatchSolver.sol";
+import "../swapper/IBatchSolver.sol";
 
 // Mock implementation of the IBatchSolver to simulate its behavior and
 // check if it's called correctly in Dispatcher.t.sol and testDispatcher.js

@@ -48,7 +48,7 @@ async function main() {
     // ------------------------------------
 
     console.log("====== Start Generating TXs Calling addIntent ======");
-    const accountsLength = 100; // accounts.length is 100k, I don't want to kill my CPU
+    const accountsLength = 10; // accounts.length is 100k, I don't want to kill my CPU
     const handle_dispatcher = frontendUtil.newFile(
         txbase + "/addIntent/dispatcher.out"
     );
