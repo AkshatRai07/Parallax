@@ -14,7 +14,7 @@ The system is split into two main contracts: `Dispatcher.sol` (for parallel inte
 
 ```
                            +------------------+
-[Users] --addIntent()-->   |  Dispatcher.sol  
+[Users] --addIntent()-->   |  Dispatcher.sol  |
                            | (IntentStruct[]) |
                            +------------------+
                                     |
