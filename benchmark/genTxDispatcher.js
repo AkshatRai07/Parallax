@@ -3,7 +3,7 @@
 // Run benchmark with this:
 // npx arcology.net-tx-sender http://192.168.1.103:8545 benchmark/dispatcher/txs/like/addIntent/
 
-import hre, { network } from "hardhat";
+import { network } from "hardhat";
 import frontendUtil from "@arcologynetwork/frontend-util/utils/util";
 import nets from "../network.json";
 import ProgressBar from "progress";
@@ -17,11 +17,11 @@ async function main() {
 
     const accounts = await ethers.getSigners();
     const provider = new ethers.providers.JsonRpcProvider(
-        nets[hre.network.name].url
+        nets.TestnetInfo.url
     );
 
     // Use the first account (default deployer) as the keeper
-    const pkCreator = nets[hre.network.name].accounts[0];
+    const pkCreator = nets.TestnetInfo.accounts[0];
     const signerCreator = new ethers.Wallet(pkCreator, provider);
     const keeper = await signerCreator.getAddress();
 
@@ -64,7 +64,7 @@ async function main() {
     );
 
     for (i = 0; i < accountsLength; i++) {
-        const pk = nets[hre.network.name].accounts[i];
+        const pk = nets.TestnetInfo.accounts[i];
         if (!pk) {
             console.warn(`\nWarning: No private key found for account ${i}. Skipping.`);
             bar.tick(1); // Still tick the bar
