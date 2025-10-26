@@ -72,7 +72,6 @@ This project was built specifically to meet the criteria for the Arcology and Ha
       * **`U256Cumulative`:** This parallel-safe data type is used to aggregate global statistics (total volume, swap count) from all threads without causing state contention.
   * **Custom Parallel Design:** The `IntentStruct` array in `Dispatcher.sol` is designed explicitly for parallel consumption by `BatchSolver.sol`, demonstrating an understanding of parallel-safe contract design principles.
   * **Real-World Scalability:** By batching intents and processing pairs in parallel, Parallax can achieve thousands of TPS, limited only by the number of parallel threads Arcology can support, not by single-threaded state contention on one popular pair.
-  * **Better than NettedAMM:** The UniSwap V3 implementation given in Arcology's examples targets just one Pair and dispatches at a certain threshold, while my architecture handles multiple pairs parallely and dispatching doesn't depend on the transaction frequency.
   * **Benchmark Scripts:** A benchmark script is included to measure the throughput of the `addIntent` function in `Dispatcher.sol`, providing a baseline for ingestion performance.
   * **Deployment Script:** A deployment script is provided in `scripts/Deploy.js`. (See known issue below).
 
